@@ -19,14 +19,27 @@
 #define MAX_ORDER 100
 #define MAX_SEQ 100
 
+int derive_val( const int * sequence, int len )
+{
+    // Return P(n) - P(n-1). In case of 0, D = -1
+    // Must check all values! Special case "1 1 1 1 1 1 1 1 1 2" is derived all the way until "1"
+    int derived = 0;
+    for( int i = 0; i < len; i++ )
+    {
+        derived = sequence[i+1] - sequence[i];
+        if( derived != 0 )
+            break;
+    }
+    return derived;
+}
+
+
 void derive_order( int * sequence, int len )
 {
-    while( len > 1 )
+    for( int i = 0; i < len; i++ )
     {
-        sequence[len-1] = sequence[len-1] - sequence[len-2];
-        len--;
+        sequence[i] = sequence[i+1] - sequence[i];
     }
-    sequence[0] = 0;
 }
 
 int append_sequence( int * last_in_order_arr, int orders )
@@ -53,8 +66,9 @@ void method_of_differences( int * sequence, int len, int to_compute )
     // Find Degree 0
     // D-1 for P'(n) is P(n)-P(n-1)
     // Constant function P(n) = C can be considered D = 0, Zero function P(n) = 0 is D = -1.
-    while( len > 1 && sequence[len-1] - sequence[len-2] != 0 && orders < MAX_ORDER )
+    while( len > 1 && derive_val( sequence, len ) != 0 && orders < MAX_ORDER )
     {
+        len--;
         derive_order( sequence, len );
         last_in_order_arr[orders] = sequence[len-1];
         orders++;
